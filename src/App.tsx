@@ -57,47 +57,64 @@ function App() {
           </Typography>
         </Stack>
 
-        {/* Controls */}
-        <Card elevation={3}>
-          <CardContent>
-            <Stack spacing={3}>
-              <Typography variant="subtitle1" fontWeight={600}>
-                Filters
-              </Typography>
-              <Divider />
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
-                <DatePicker
-                  value={selectedDate}
-                  onChange={(date) => date && dispatch(setSelectedDate(date))}
-                />
-                <BaseCurrencySelector
-                  baseCurrency={baseCurrency}
-                  setBaseCurrency={(c) => dispatch(setBaseCurrency(c))}
+        {/* Cards */}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          alignItems="stretch"
+        >
+          {/* Controls Card */}
+          <Card elevation={3} sx={{ flex: 1, borderRadius: 2 }}>
+            <CardContent>
+              <Stack spacing={2}>
+                <Typography variant="subtitle1" fontWeight={600}>
+                  Filters
+                </Typography>
+                <Divider />
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <DatePicker
+                    value={selectedDate}
+                    onChange={(date) => date && dispatch(setSelectedDate(date))}
+                  />
+                  <BaseCurrencySelector
+                    baseCurrency={baseCurrency}
+                    setBaseCurrency={(c) => dispatch(setBaseCurrency(c))}
+                    allCurrencies={allCurrencies}
+                  />
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
+
+          {/* Currency Selector Card */}
+          <Card elevation={1} sx={{ flex: 1, borderRadius: 2 }}>
+            <CardContent>
+              <Stack spacing={1.5}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography variant="subtitle1" fontWeight={700}>
+                    Selected Currencies
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    (Minimum 3, maximum 7)
+                  </Typography>
+                </Stack>
+
+                <Divider />
+
+                <CurrencySelector
+                  selected={selectedCurrencies}
+                  setSelected={(c) => dispatch(setSelectedCurrencies(c))}
                   allCurrencies={allCurrencies}
                 />
               </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-
-        {/* Currency Selector */}
-        <Card elevation={1}>
-          <CardContent>
-            <Stack spacing={1} alignItems="center">
-              <Typography variant="subtitle1" fontWeight={600}>
-                Selected Currencies
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Minimum 3, maximum 7 currencies
-              </Typography>
-              <CurrencySelector
-                selected={selectedCurrencies}
-                setSelected={(c) => dispatch(setSelectedCurrencies(c))}
-                allCurrencies={allCurrencies}
-              />
-            </Stack>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Stack>
 
         {/* Currency Table */}
         <CurrencyTable
