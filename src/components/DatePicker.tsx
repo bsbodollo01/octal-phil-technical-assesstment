@@ -4,17 +4,19 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 
 interface Props {
-  value: Dayjs;
-  onChange: (date: Dayjs | null) => void;
+  value: string;
+  onChange: (date: string | null) => void;
 }
 
 export default function DatePicker({ value, onChange }: Props) {
+  const dayjsValue = value ? dayjs(value) : null;
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <MuiDatePicker
         label="Select Date"
-        value={value}
-        onChange={onChange}
+        value={dayjsValue}
+        onChange={(date: Dayjs | null) => onChange(date ? date.toISOString() : null)}
         disableFuture
         minDate={dayjs().subtract(90, "day")}
       />

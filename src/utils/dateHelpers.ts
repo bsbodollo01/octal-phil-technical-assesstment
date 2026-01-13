@@ -1,7 +1,9 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
-export const getLastNDays = (date: dayjs.Dayjs, n = 7): string[] => {
+export function getLastNDays(date: string | Dayjs, n: number): string[] {
+  const day = typeof date === "string" ? dayjs(date) : date;
+
   return Array.from({ length: n }, (_, i) =>
-    date.subtract(i, "day").format("YYYY-MM-DD")
-  ).reverse();
-};
+    day.subtract(i, "day").format("YYYY-MM-DD")
+  );
+}
