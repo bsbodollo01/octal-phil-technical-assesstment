@@ -1,35 +1,115 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useMemo } from "react";
+import { Stack, Card, CardContent, Typography, Divider, Container } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "./store";
+import {
+  setBaseCurrency,
+  setSelectedCurrencies,
+  setSelectedDate,
+  fetchAllCurrencies,
+} from "./store/slices/currencySlice";
+
+import DatePicker from "./components/DatePicker";
+import BaseCurrencySelector from "./components/BaseCurrencySelector";
+import CurrencySelector from "./components/CurrencySelector";
+import CurrencyTable from "./components/CurrencyTable";
+
+import { getLastNDays } from "./utils/dateHelpers";
+import { useCurrencyRates } from "./hooks/useCurrencyRates";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const dispatch = useDispatch<AppDispatch>();
+
+  const baseCurrency = useSelector((state: RootState) => state.currency.baseCurrency);
+  const selectedCurrencies = useSelector((state: RootState) => state.currency.selectedCurrencies);
+  const selectedDate = useSelector((state: RootState) => state.currency.selectedDate);
+  const allCurrencies = useSelector((state: RootState) => state.currency.allCurrencies);
+
+  useEffect(() => {
+    dispatch(fetchAllCurrencies());
+  }, [dispatch]);
+
+  const dates = useMemo(() => getLastNDays(selectedDate, 7), [selectedDate]);
+  const { rates, loading, error } = useCurrencyRates(baseCurrency, dates);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Container
+      maxWidth={false}
+      disableGutters
+      sx={{
+        width: "100%",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f5f7fa",
+        p: 2,
+      }}
+    >
+      <Stack spacing={4} width={{ xs: "100%", sm: "80%", md: "60%" }}>
+        {/* Header */}
+        <Stack spacing={0.5} textAlign="center">
+          <Typography variant="h4" color="primary" fontWeight={700}>
+            Currency Exchange Rates
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Compare exchange rates for the last 7 days
+          </Typography>
+        </Stack>
+
+        {/* Controls */}
+        <Card elevation={3}>
+          <CardContent>
+            <Stack spacing={3}>
+              <Typography variant="subtitle1" fontWeight={600}>
+                Filters
+              </Typography>
+              <Divider />
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
+                <DatePicker
+                  value={selectedDate}
+                  onChange={(date) => date && dispatch(setSelectedDate(date))}
+                />
+                <BaseCurrencySelector
+                  baseCurrency={baseCurrency}
+                  setBaseCurrency={(c) => dispatch(setBaseCurrency(c))}
+                  allCurrencies={allCurrencies}
+                />
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+
+        {/* Currency Selector */}
+        <Card elevation={1}>
+          <CardContent>
+            <Stack spacing={1} alignItems="center">
+              <Typography variant="subtitle1" fontWeight={600}>
+                Selected Currencies
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Minimum 3, maximum 7 currencies
+              </Typography>
+              <CurrencySelector
+                selected={selectedCurrencies}
+                setSelected={(c) => dispatch(setSelectedCurrencies(c))}
+                allCurrencies={allCurrencies}
+              />
+            </Stack>
+          </CardContent>
+        </Card>
+
+        {/* Currency Table */}
+        <CurrencyTable
+          dates={dates}
+          currencies={selectedCurrencies}
+          rates={rates}
+          loading={loading}
+          error={error}
+        />
+      </Stack>
+    </Container>
+  );
 }
 
-export default App
+export default App;
