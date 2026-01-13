@@ -1,10 +1,7 @@
+import dayjs from "dayjs";
 
-export const getLast7Days = (date: Date) => {
-  const days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(date);
-    d.setDate(d.getDate() - i);
-    days.push(d.toISOString().split("T")[0]);
-  }
-  return days;
+export const getLastNDays = (date: dayjs.Dayjs, n = 7): string[] => {
+  return Array.from({ length: n }, (_, i) =>
+    date.subtract(i, "day").format("YYYY-MM-DD")
+  ).reverse();
 };
